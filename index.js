@@ -10,8 +10,54 @@ const COLORS = 'https://nt-cdn.s3.amazonaws.com/colors.json';
  * @param compHex filter for complementary color hex code
  * @returns Promise
  */
-const fetchColors = ({ name, hex, compName, compHex }) => {
-  throw Error('Not implemented');
+const fetchColors = async ({ name, hex, compName, compHex }) => {
+  try {
+    const response = await fetch(COLORS);
+
+    if (!response.ok) {
+      throw new Error('Something went wrong with the network response.');
+    }
+
+    const colors = await response.json();
+
+    // We want to filter everything if those respective params exist.
+    let filteredColors = colors;
+
+    if (name) {
+      filteredColors = filteredColors.filter(color =>
+        color.name.toLowerCase().includes(name.toLowerCase())
+      );
+      console.log('Filtered by name:', filteredColors);
+    }
+
+    if (hex) {
+      filteredColors = filteredColors.filter(color => color.hex.toLowerCase() === hex.toLowerCase());
+      console.log('Filtered by hex:', filteredColors);
+    }
+
+    if (compName) {
+      filteredColors = filteredColors.filter(color => 
+        color.comp && color.comp.some(c => c.name.toLowerCase().includes(compName.toLowerCase()))
+      );
+      console.log('Filtered by complementary name:', filteredColors); 
+    }
+
+    if (compHex) {
+      filteredColors = filteredColors.filter(color => 
+        color.comp && color.comp.some(c => c.hex.toLowerCase() === compHex.toLowerCase())
+      );
+      console.log('Filtered by complementary hex:', filteredColors); 
+    }
+
+    // Checking the filtered results
+    console.log('Final filtered colors:', filteredColors);
+
+    return filteredColors;
+
+  } catch (error) {
+    console.error('Failed to fetch the requested colors: ', error);
+    throw error;
+  }
 };
 
 // Leave this here
